@@ -36,6 +36,7 @@ const query = (sql, params) => {
 };
 
 // Routes
+// Get all chickens
 app.get("/chicken", async (req, res, next) => {
     try {
         const result = await query("SELECT * FROM chickens");
@@ -49,6 +50,38 @@ app.get("/chicken", async (req, res, next) => {
     }
 });
 
+// Get chicken by ID
+app.get("/chicken/:id", async (req, res, next) => {
+    const id = parseInt(req.params.id);
+    if (!id) {
+        return res.sendStatus(400);
+    }
+
+    try {
+        const existingChicken = await query(
+            "SELECT id FROM chickens WHERE id = ?",
+            [id]
+        );
+
+        if (existingChicken.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                message: "Chicken not found",
+            });
+        }
+
+        const result = await query("SELECT * FROM chickens WHERE id = ?", [id]);
+        res.status(200).json({
+            status: "success",
+            length: result.length,
+            result: result,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Add a new chicken
 app.post("/chicken", async (req, res, next) => {
     const chicken = req.body;
 
