@@ -68,8 +68,8 @@ app.put("/chicken/:id", (req, res, next) => {
         return res.sendStatus(400);
     }
     con.query(
-        "UPDATE chickens SET name = $1, birthday=$2, weight=$3, steps=$4, isRunning=$5 WHERE id=?",
-        [id, name, birthday, steps, isRunning, weight],
+        "UPDATE chickens SET name = ?, birthday=?, weight=?, steps=?, isRunning=? WHERE id=?",
+        [name, birthday, steps, isRunning, weight, id],
         function (err, data, fields) {
             if (err) throw err;
             res.status(201).json({
