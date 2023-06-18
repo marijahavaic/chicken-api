@@ -16,13 +16,30 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Check if all required environment variables are set
+const requiredEnvVars = [
+    "DB_HOST",
+    "DB_PORT",
+    "DB_USER",
+    "DB_PASSWORD",
+    "DB_NAME",
+];
+
+const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    throw new Error(
+        `Missing required environment variables: ${missingEnvVars.join(", ")}`
+    );
+}
+
 // connect to a DB
 const con = mysql.createConnection({
-    host: "127.0.0.1",
-    port: "3306",
-    user: "chicken-api",
-    password: "GUQ5uzj.exq1pdq7fxe",
-    database: "hen_house",
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
 });
 
 // Helper function to execute a query with parameters
@@ -85,8 +102,11 @@ app.get("/chicken/:id", async (req, res, next) => {
 app.post("/chicken", async (req, res, next) => {
     const chicken = req.body;
 
-    if (!chicken) {
-        return res.sendStatus(400);
+    if (!chicken || !chicken.name || !chicken.weight) {
+        return res.status(400).json({
+            status: "error",
+            message: "Name and weight are required",
+        });
     }
 
     try {

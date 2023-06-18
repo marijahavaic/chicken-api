@@ -1,0 +1,41 @@
+version: "3"
+services:
+    db:
+        image: mysql:5.7
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: your_root_password
+            MYSQL_DATABASE: henhouse
+            MYSQL_USER: chicken-api
+            MYSQL_PASSWORD: GUQ5uzj.exq1pdq7fxe
+            MYSQL_ONETIME_PASSWORD: "yes"
+        networks:
+            - chicken-farm
+        volumes:
+            - mysql-data:/var/lib/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        networks:
+            - chicken-farm
+        ports:
+            - 3000:3000
+        depends_on:
+            - db
+        environment:
+            DB_HOST: db
+            DB_PORT: 3306
+            DB_USER: chicken-api
+            DB_PASSWORD: GUQ5uzj.exq1pdq7fxe
+            DB_NAME: henhouse
+
+volumes:
+    mysql-data:
+
+networks:
+    chicken-farm:
+        driver: bridge
